@@ -6,11 +6,11 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/lohit-dev/go-clean-rest-api/config"
 	"github.com/lohit-dev/go-clean-rest-api/internal/server"
+	"github.com/lohit-dev/go-clean-rest-api/internal/store"
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
+	if err := godotenv.Load(); err != nil {
 		log.Fatal("Failed to load .env", err)
 	}
 
@@ -18,6 +18,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	db, err := store.New(cfg.DatabaseURL)
+	if err != nil {
+		log.Fatal("db connect failed: ", err)
+	}
+	defer db.Close()
 
 	app := server.New(cfg.Port, cfg.Logger)
 	if err := app.Run(); err != nil {
