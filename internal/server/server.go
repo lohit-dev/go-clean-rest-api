@@ -1,4 +1,4 @@
-package internal
+package server
 
 import (
 	"encoding/json"
@@ -41,4 +41,16 @@ func (s *Server) setupRoutes() {
 		json.NewEncoder(w).Encode(map[string]string{"status": "online"})
 	})
 
+}
+
+func (s *Server) Run() error {
+	defer s.Logger.Sync()
+	s.Logger.Info("starting server", zap.String("port", s.Port))
+
+	if err := http.ListenAndServe(":"+s.Port, s.Router); err != nil {
+		s.Logger.Error("Server Failed", zap.Error(err))
+		return err
+	}
+
+	return nil
 }
