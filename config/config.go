@@ -7,8 +7,9 @@ import (
 )
 
 type Config struct {
-	Port   string
-	Logger *zap.Logger
+	Port        string
+	Logger      *zap.Logger
+	DatabaseURL string
 }
 
 func New() (*Config, error) {
@@ -18,8 +19,9 @@ func New() (*Config, error) {
 	}
 
 	return &Config{
-		Port:   getEnv("PORT", "4545"),
-		Logger: logger,
+		Port:        getEnv("PORT", "4545"),
+		Logger:      logger,
+		DatabaseURL: getEnv("DB_URL", ""),
 	}, nil
 }
 

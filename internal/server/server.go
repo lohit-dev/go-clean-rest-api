@@ -8,12 +8,14 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type Server struct {
 	Port   string
 	Router *chi.Mux
 	Logger *zap.Logger
+	DB     *gorm.DB
 }
 
 func New(port string, logger *zap.Logger) *Server {
