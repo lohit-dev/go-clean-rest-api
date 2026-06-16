@@ -25,7 +25,7 @@ func main() {
 	}
 	defer db.Close()
 
-	app := server.New(cfg.Port, cfg.Logger)
+	app := server.New(cfg.Port, cfg.Logger, db)
 	if err := app.Run(); err != nil {
 		log.Fatal(err)
 	}
