@@ -1,4 +1,4 @@
-package internal
+package store
 
 import (
 	"gorm.io/driver/postgres"
@@ -26,6 +26,10 @@ func New(dsn string) (*Store, error) {
 	return &Store{
 		db: db,
 	}, nil
+}
+
+func (s *Store) DB() *gorm.DB {
+	return s.db
 }
 
 func (s *Store) Close() error {
