@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/lohit-dev/go-clean-rest-api/internal/store"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -18,7 +19,7 @@ type Server struct {
 	DB     *gorm.DB
 }
 
-func New(port string, logger *zap.Logger) *Server {
+func New(port string, logger *zap.Logger, store *store.Store) *Server {
 	s := &Server{
 		Port:   port,
 		Router: chi.NewRouter(),
@@ -26,17 +27,18 @@ func New(port string, logger *zap.Logger) *Server {
 	}
 
 	s.setupMiddleware()
-	s.setupRoutes()
+	s.setupRoutes(store)
 
 	return s
 }
 
 func (s *Server) setupMiddleware() {
+	s.Router.Use(middleware.Logger)
 	s.Router.Use(middleware.Recoverer)
 	s.Router.Use(middleware.Timeout(60 * time.Second))
 }
 
-func (s *Server) setupRoutes() {
+func (s *Server) setupRoutes(_ *store.Store) {
 	s.Router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)

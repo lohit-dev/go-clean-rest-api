@@ -15,9 +15,6 @@ func New(dsn string) (*Store, error) {
 		return nil, err
 	}
 
-	// Don't Forget to add all the model structs here for auto migration to work
-	db.AutoMigrate()
-
 	sqlDb, err := db.DB()
 	if err != nil {
 		return nil, err
@@ -33,6 +30,10 @@ func New(dsn string) (*Store, error) {
 
 func (s *Store) DB() *gorm.DB {
 	return s.db
+}
+
+func (s *Store) Migrate(models ...interface{}) error {
+	return s.db.AutoMigrate(models...)
 }
 
 func (s *Store) Close() error {
