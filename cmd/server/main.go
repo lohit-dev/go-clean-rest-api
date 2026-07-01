@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"log"
+	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/lohit-dev/go-clean-rest-api/config"
@@ -10,23 +12,32 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Failed to load .env", err)
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func run() error {
+	if err := godotenv.Load(); err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
 	}
 
 	cfg, err := config.New()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+	defer cfg.Logger.Sync()
 
 	db, err := store.New(cfg.DatabaseURL)
 	if err != nil {
-		log.Fatal("db connect failed: ", err)
+		return err
 	}
 	defer db.Close()
 
 	app := server.New(cfg.Port, cfg.Logger, db)
 	if err := app.Run(); err != nil {
-		log.Fatal(err)
+		return err
 	}
+
+	return nil
 }

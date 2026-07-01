@@ -1,6 +1,10 @@
 package store
 
 import (
+	"errors"
+	"strings"
+	"time"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -10,6 +14,10 @@ type Store struct {
 }
 
 func New(dsn string) (*Store, error) {
+	if strings.TrimSpace(dsn) == "" {
+		return nil, errors.New("database dsn is empty")
+	}
+
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
@@ -22,6 +30,12 @@ func New(dsn string) (*Store, error) {
 
 	sqlDb.SetMaxOpenConns(20)
 	sqlDb.SetMaxIdleConns(10)
+	sqlDb.SetConnMaxLifetime(30 * time.Minute)
+	sqlDb.SetConnMaxIdleTime(5 * time.Minute)
+
+	if err := sqlDb.Ping(); err != nil {
+		return nil, err
+	}
 
 	return &Store{
 		db: db,

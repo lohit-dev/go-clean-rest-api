@@ -1,6 +1,7 @@
 package respond
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 )
@@ -27,9 +28,13 @@ func ErrorMessage(w http.ResponseWriter, status int, msg string) {
 }
 
 func write(w http.ResponseWriter, status int, v any) {
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(v); err != nil {
+		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	if err := json.NewEncoder(w).Encode(v); err != nil {
-		http.Error(w, "failed to encode response", http.StatusInternalServerError)
-	}
+	_, _ = w.Write(buf.Bytes())
 }
